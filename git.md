@@ -1,3 +1,42 @@
+# 0、常见问题
+
+## Git Bash终端文件名都只显示数字串
+
+原因：在默认设置下，中文文件名在工作区状态输出，中文名不能正确显示，而是显示为八进制的字符编码。
+
+解决：
+
+```bash
+git config --global core.quotepath false
+```
+
+## fatal：refusing to merge unrelated histories
+
+过程：
+
+1. GitHub上新建仓库A；
+2. 本地初始化仓库B，并设置remote orgin为远程仓库A的地址；
+3. 本地执行pull或者push操作；
+
+解决：
+
+```bash
+git pull origin master --allow-unrelated-histories
+```
+
+## Enter passphrase for key '本地SSH私钥地址'
+
+原因：应该是生成公钥和私钥的时候设置了密码，导致每次操作git都需要输入密码。
+
+解决：
+
+```bash
+# 命令
+ssh-keygen -p [-P old_passphrase] [-N new_passphrase] [-f keyfile]
+# sample
+ssh-keygen -p -P 123456 -N '' -f ~/.ssh/id_rsa
+```
+
 # 1、初始化
 
 全局配置，所有仓库生效。
