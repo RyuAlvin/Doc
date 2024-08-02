@@ -129,6 +129,9 @@ $ git add file4.txt
 ryualvin ~/Desktop/GitTest/repo-ignore (master)
 $ git status -s
 A  file4.txt
+
+# 简化命令 git status => git st
+git config --global alias.st status
 ```
 
 # 4、文件操作
