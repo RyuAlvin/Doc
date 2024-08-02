@@ -148,6 +148,12 @@ git mv <file> <new-file>
 git checkout <file> <commit-id>
 ```
 
+撤销工作区的修改（只能撤销工作区的修改，且不可恢复，不会撤销暂存区修改）：
+
+```
+git checkout <file>
+```
+
 将文件从工作区添加至暂存区：
 
 ```bash
