@@ -37,6 +37,18 @@ ssh-keygen -p [-P old_passphrase] [-N new_passphrase] [-f keyfile]
 ssh-keygen -p -P 123456 -N '' -f ~/.ssh/id_rsa
 ```
 
+## ^和~的差别
+
+https://blog.csdn.net/albertsh/article/details/106448035
+
+不加数字的情况下或者数字是1的情况下，^和~效果相同，都是指向第一个父节点：
+
+![image-20240803150752770](./assets/image-20240803150752770.png)
+
+数字大于2的情况下，~永远指向的是第一个父节点，连续退后至第一个父节点；而对于合并后的节点来说，存在2个父节点，所以^2则指向的是第2个父节点：
+
+![image-20240803151142668](./assets/image-20240803151142668.png)
+
 # 1、初始化
 
 全局配置，所有仓库生效。
@@ -183,6 +195,20 @@ git commit -am "feat:1"
 
 ```bash
 git tag "first release"
+```
+
+更改文件名：
+
+```bash
+git mv READ.md README
+```
+
+相当于：
+
+```bash
+mv README.md README
+git rm README.md
+git add README
 ```
 
 # 5、RESET和REVERT
@@ -410,13 +436,13 @@ graph
 # 7、查看差异
 
 ```bash
-# 查看工作区修改
+# 查看工作区修改（工作区 VS 本地仓库）
 git diff
 
-# 工作区 + 暂存区 VS 本地仓库
+# 查看本地仓库修改（工作区/暂存区 VS 本地仓库）
 git diff HEAD
 
-# 暂存区 VS 本地仓库
+# 查看暂存区修改（暂存区 VS 本地仓库）
 git diff --cached
 git diff --staged
 
@@ -479,65 +505,20 @@ $ git commit -m "delete file4"
 ### 8.2.1、把文件从工作区和暂存区同时删除
 
 ```bash
-# 删除前工作区文件
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ ls
-file1.txt  file2.txt  file3.txt  file5.txt
+git rm readme.md
+```
 
-# 删除前暂存区文件
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ git ls-files
-file1.txt
-file2.txt
-file3.txt
-file5.txt
+相当于：
 
-# 把文件从工作区和暂存区同时删除
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ git rm file5.txt
-rm 'file5.txt'
-
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ ls
-file1.txt  file2.txt  file3.txt
-
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ git ls-files
-file1.txt
-file2.txt
-file3.txt
+```bash
+rm readme.md
+git add .
 ```
 
 ### 8.2.2、把文件从暂存区删除但保留在工作区
 
 ```bash
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ ls
-file1.txt  file2.txt  file3.txt  file5.txt
-
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ git ls-files
-file1.txt
-file2.txt
-file3.txt
-file5.txt
-
-# 把文件从暂存区删除
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ git rm --cached file5.txt
-rm 'file5.txt'
-
-# 工作区中还保留着file5
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ ls
-file1.txt  file2.txt  file3.txt  file5.txt
-
-# 暂存区中的file5已被删除
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ git ls-files
-file1.txt
-file2.txt
-file3.txt
+git rm --cached readme.md
 ```
 
 ### 8.2.3、递归删除某个目录下的所有子目录和文件
@@ -1033,7 +1014,7 @@ git stash save "message"
 git stash list
 ```
 
-恢复最近一次stash：
+恢复最近一次stash（**弹栈，恢复后旧从stash list中删除**）：
 
 ```bash
 git stash pop
@@ -1045,10 +1026,16 @@ git stash pop
 git stash pop stash@{2}
 ```
 
-重新接收最近一次stash：
+重新接收最近一次stash（**只应用，不弹栈，恢复后不从stash list中删除**）：
 
 ```bash
 git stash apply
+```
+
+接收指定的stash，stash@{2}表示第三个stash，stash@{0}表示最近的stash。
+
+```
+git stash apply stash@{2}
 ```
 
 pop和apply的区别是，pop会把stash内容删除，而apply不会。可以用git stash drop来删除stash。
