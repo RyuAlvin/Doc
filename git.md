@@ -49,348 +49,83 @@ https://blog.csdn.net/albertsh/article/details/106448035
 
 ![image-20240803151142668](./assets/image-20240803151142668.png)
 
-# 1、初始化
+# 1、工作流程和文件状态
 
-全局配置，所有仓库生效。
-
-```bash
-git config --global user.name ryualvin
-git config --global user.email lsben1014@gmail.com
-```
-
-系统配置，对所有用户生效。
-
-```bash
-git config --global user.name ryualvin
-git config --global user.email lsben1014@gmail.com
-```
-
-用户名中如果存在空格，需要加双引号。
-
-```bash
-git config --global user.name “ryu alvin”
-```
-
-保存用户名和密码：
-
-```bash
-git config --global credential.helper store
-```
-
-查看全局配置和系统配置：
-
-```bash
-git config --global --list
-git config --system --list
-```
-
-# 2、创建仓库
-
-> 方式一：创建本地仓库
-
-```bash
-git init
-# 可指定仓库名
-git init learn-repo
-```
-
-> 方式二：克隆一个远程仓库
-
-```bash
-git clone https://github.com/xxx/learn-repo.git
-```
-
-# 3、工作区域和文件状态
-
-> Git的四个区域
-
-![image-20240427181326918](./assets/image-20240427181326918.png)
-
-- 工作区（Working Directory）：就是你再电脑里能看到的目录；
-- 暂存区（Stage/Index）：一般存放在.git目录下的index文件，所以我们把暂存区有时也叫做索引（index）；
-- 本地仓库（Repository）：工作区有一个隐藏目录.git，这个不算工作区，而是Git的版本库；
-- 远程仓库（Remote）：托管再远程服务器上的仓库。
-
-> Git的三种状态
+![image-20240427181504566](./assets/git-work-flow.png)
 
 ![image-20240427181504566](./assets/image-20240427181504566.png)
 
-- 已修改（Modified）：修改了文件，但没保存到暂存区；
-- 已暂存（Staged）：把修改后的文件放到暂存区；
-- 已提交（Committed）：把暂存区的文件提交到本地仓库。
+# 2、配置
 
-```bash
-# 查看状态
-ryualvin ~/Desktop/GitTest/repo-ignore (master)
-$ git status
-On branch master
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-        file4.txt
+| 描述                                 | 命令                                                         |
+| ------------------------------------ | ------------------------------------------------------------ |
+| 全局配置，所有仓库生效               | git config --global user.name ryualvin<br/>git config --global user.email lsben1014@gmail.com |
+| 系统配置，对所有用户生效             | git config --system user.name ryualvin<br/>git config --system user.email lsben1014@gmail.com |
+| 用户名中如果存在空格，需要加双引号   | git config --global user.name “ryu alvin”                    |
+| 保存用户名和密码                     | git config --global credential.helper store                  |
+| 查看全局配置和系统配置，或者所有配置 | git config --global --list<br/>git config --system --list<br/>git config --list |
+| 查看某一项配置                       | git config user.name                                         |
+| 获取config命令的手册                 | git help config                                              |
 
-nothing added to commit but untracked files present (use "git add" to track)
+# 3、创建仓库
 
-# 简洁显示状态
-ryualvin ~/Desktop/GitTest/repo-ignore (master)
-$ git status -s
-?? file4.txt
-
-ryualvin ~/Desktop/GitTest/repo-ignore (master)
-$ git add file4.txt
-
-ryualvin ~/Desktop/GitTest/repo-ignore (master)
-$ git status -s
-A  file4.txt
-
-# 简化命令 git status => git st
-git config --global alias.st status
-```
+| 描述                                             | 命令                                            |
+| ------------------------------------------------ | ----------------------------------------------- |
+| 创建本地仓库                                     | git init                                        |
+| 创建本地仓库，并指定仓库名                       | git init learn-repo                             |
+| 克隆一个远程仓库<br>注意：默认以origin为简写名称 | git clone https://github.com/xxx/learn-repo.git |
 
 # 4、文件操作
 
-移动一个文件到新的位置：
+| 描述                                                         | 命令                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 查看文件状态                                                 | git status                                                   |
+| 工作区=>暂存区<br>可使用通配符，或指定文件                   | git add .                                                    |
+| 暂存区=>本地仓库                                             | git commit -m "message"                                      |
+| 工作区=>本地仓库<br>对于本地仓库中有快照副本的文件才有效     | git commit -am "message"                                     |
+| 先从工作区删除再提交                                         | rm temp.txt<br>git add temp.txt<br>git commit -m "message"   |
+| 从工作区和暂存区都同时删除                                   | git rm temp.txt<br>相当于：<br>rm temp.txt<br>git add .      |
+| 从暂存区删除但保留再工作区<br>删除文件的跟踪状态             | git rm --cached temp.txt                                     |
+| 忽略文件<br>.gitignore只能忽略未跟踪状态的文件<br>如果远程仓库已经有了logs文件夹，可以使用该操作删除 | 删除文件的跟踪状态：<br>git rm --cached logs/xx.log<br>此时本地工作区修改还在。<br>更新.gitignore文件后，删除远程仓库对应的文件：<br>git add . & git commit -m "xx" & git push |
 
 ```bash
-git mv <file> <new-file>
-```
-
-恢复一个文件到之前的版本：
-
-```bash
-git checkout <file> <commit-id>
-```
-
-撤销工作区的修改（只能撤销工作区的修改，且不可恢复，不会撤销暂存区修改）：
-
-```
-git checkout <file>
-```
-
-将文件从工作区添加至暂存区：
-
-```bash
-git add .
-git add file1.txt
-# 可使用通配符
-git add *.txt
-```
-
-提交至本地仓库：
-
-- 只会提交暂存区里有的内容；
-- 不指定提交消息的话，会自动进入vim编辑模式。
-
-```bash
-git commit -m "这是第一次提交"
-```
-
-添加至暂存和提交两个操作（关联远程仓库后才可使用）：
-
-```bash
-git commit -a -m "feat:1"
-git commit -am "feat:1"
-```
-
-给当前的提交打上标签，通常用于版本发布。
-
-```bash
-git tag "first release"
-```
-
-更改文件名：
-
-```bash
-git mv READ.md README
-```
-
-相当于：
-
-```bash
-mv README.md README
-git rm README.md
-git add README
-```
-
-# 5、RESET和REVERT
-
-## 5.1、RESET的三种模式
-
-![image-20240427184124816](./assets/image-20240427184124816.png)
-
-### 5.1.1、HARD
-
-回退到某一个版本，并且丢弃工作区和暂存区的所有修改内容：
-
-```bash
-ryualvin ~/Desktop/GitTest/repo-hard (master)
-$ git log --oneline
-88a7a69 (HEAD -> master) third commit
-c6db37e second commit
-6fb9bca first commit
-
-ryualvin ~/Desktop/GitTest/repo-hard (master)
-$ git reset --hard 6fb9bca
-HEAD is now at 6fb9bca first commit
-
-# 工作区和暂存区都只有第一次提交的file1
-ryualvin ~/Desktop/GitTest/repo-hard (master)
-$ git status
 On branch master
-nothing to commit, working tree clean
-
-ryualvin ~/Deskt
-$ ls
-file1.txt
-```
-
-### 5.1.2、SOFT
-
-回退到某一个版本，并且保留工作区和暂存区的所有修改内容：
-
-```bash
-ryualvin ~/Desktop/GitTest/repo-soft (master)
-$ git log --oneline
-88a7a69 (HEAD -> master) third commit
-c6db37e second commit
-6fb9bca first commit
-
-ryualvin ~/Desktop/GitTest/repo-soft (master)
-$ git reset --soft 6fb9bca
-
-# 此时暂存区中有第二次和第三次提交的file2和file3
-ryualvin ~/Desktop/GitTest/repo-soft (master)
-$ git status
-On branch master
+# 暂存区中的temp.txt已经被删除
 Changes to be committed:
   (use "git restore --staged <file>..." to unstage)
-        new file:   file2.txt
-        new file:   file3.txt
-
-# git ls-files操作可查看暂存区中的所有文件
-ryualvin ~/Desktop/GitTest/repo-soft (master)
-$ git ls-files
-file1.txt
-file2.txt
-file3.txt
-
-# 此时工作区中有第二次和第三次提交的file2和file3
-ryualvin ~/Desktop/GitTest/repo-soft (master)
-$ ls
-file1.txt  file2.txt  file3.txt
-```
-
-HEAD^：
-
-```bash
-ryualvin ~/Desktop/GitTest/repo-log (master)
-$ git log --oneline
-ef0ca57 (HEAD -> master) fifth commit
-019d908 forth commit
-6fb9bca first commit
-
-# HEAD指向分支的最新提交节点
-ryualvin ~/Desktop/GitTest/repo-log (master)
-$ git reset --soft HEAD^
-
-ryualvin ~/Desktop/GitTest/repo-log (master)
-$ git log --oneline
-019d908 (HEAD -> master) forth commit
-6fb9bca first commit
-```
-
-HEAD~：
-
-```bash
-ryualvin ~/Desktop/GitTest/repo-log (master)
-$ git log --oneline
-bb9851d (HEAD -> master) sixth commit
-019d908 forth commit
-6fb9bca first commit
-
-ryualvin ~/Desktop/GitTest/repo-log (master)
-$ git reset --soft HEAD~2
-
-ryualvin ~/Desktop/GitTest/repo-log (master)
-$ git log --oneline
-6fb9bca (HEAD -> master) first commit
-```
-
-指定具体文件回退：
-
-```bash
-$ git reset --soft HEAD^ file1.txt
-$ git reset --soft HEAD~2 file1.txt
-```
-
-### 5.1.3、MIXED
-
-回退到某一个版本，只保留工作区的修改内容，丢弃暂存区的修改内容：
-
-```bash
-ryualvin ~/Desktop/GitTest/repo-mixed (master)
-$ git log --oneline
-88a7a69 (HEAD -> master) third commit
-c6db37e second commit
-6fb9bca first commit
-
-ryualvin ~/Desktop/GitTest/repo-mixed (master)
-$ git reset --mixed 6fb9bca
-
-# 此时工作区中有第二次和第三次提交的file2和file3
-ryualvin ~/Desktop/GitTest/repo-mixed (master)
-$ git status
-On branch master
+        deleted:    temp.txt
+# 由于暂存区中的temp.txt已经被删除，所以工作区中的temp.txt相对于暂存区来说相当于一个新的文件
 Untracked files:
   (use "git add <file>..." to include in what will be committed)
-        file2.txt
-        file3.txt
-
-nothing added to commit but untracked files present (use "git add" to track)
-
-ryualvin ~/Desktop/GitTest/repo-mixed (master)
-$ ls
-file1.txt  file2.txt  file3.txt
-
-# 但暂存区中有只有第一次提交的file1
-ryualvin ~/Desktop/GitTest/repo-mixed (master)
-$ git ls-files
-file1.txt
+        temp.txt
 ```
 
-## 5.2、REVERT
+| 描述                                                         | 命令                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 递归删除该文件夹下的所有子目录和文件                         | git rm -r *                                                  |
+| 更改文件名                                                   | git mv temp.txt xyz.txt<br>相当于：<br>mv temp.txt xyz.txt<br>git rm temp.txt<br>git add xyz.txt |
+| 恢复一个文件到之前的版本                                     | git checkout temp.txt 71dks8                                 |
+| 撤销工作区的修改<br>只能撤销工作区的修改，且不可恢复，不会撤销暂存区修改 | git checkout .<br>git checkout temp.txt                      |
+| 修改（取代）最近一次提交信息：<br>提交后发现漏某些文件或者提交信息写错<br>注意：切勿修改共有提交 | git commit -m "initial commit"<br>git add forget_file.txt<br>git commit -amend<br>弹出vim编辑框，输入提交信息。<br>或者：git commit -amend -m "modify commit" |
+| 把当前工作现场储藏起来，等以后恢复现场后继续工作<br>-u参数表示把所有未跟踪的文件也一起存储<br>-a参数表示把所有未跟踪的文件和忽略的文件也一并存储<br>save参数表示存储的信息，可以不写 | git stash save "message"                                     |
+| 查看stash列表                                                | git stash list                                               |
+| 弹栈，恢复后就从stash list中删除                             | git stash pop                                                |
+| 恢复指定的stash<br>stash@{2}表示第三个stash，stash@{0}表示最近的stash | git stash pop stash@{2}                                      |
+| 只应用，不弹栈，恢复后不从stash list中删除                   | git stash apply                                              |
+| 应用指定的stash                                              | git stash apply stash@{2}                                    |
+| 手动删除指定的stash                                          | git stash drop stash@{2}                                     |
+| 清空stash list                                               | git stash clear                                              |
 
-撤销某次操作，此次操作之前和之后的提交记录都会保留，并且把这次撤销操作作为一次最新的提交版本。
+# 5、提交历史
 
-```bash
-# 撤销最新的一次提交
-git revert HEAD
-# 撤销前一次提交
-git revert HEAD^
-# 撤销某一次提交
-git revert <版本号>
-```
+| 描述               | 命令                                       |
+| ------------------ | ------------------------------------------ |
+| 查看版本信息       | git log                                    |
+| 一行显示版本信息   | git log --oneline                          |
+| 查看图形化提交记录 | git log --oneline --graph --decorate --all |
+| 查看所有操作记录   | git reflog --oneline                       |
 
-## 5.3、RESET和REVERT的区别
-
-Revert是用一次新的commit来回滚之前的commit，Reset是直接删除指定commit。
-
-# 6、版本信息和操作记录
-
-查看提交过的版本信息：
-
-```bash
-git log
-# 一行显示
-git log --oneline
-```
-
-查看所有操作记录：
-
-```bash
-git reflog --oneline
-```
-
-git log和git reflog的区别：
+**log和reflog的区别：**
 
 ```bash
 ryualvin ~/Desktop/GitTest/repo-log (master)
@@ -423,139 +158,64 @@ c6db37e HEAD@{2}: commit: second commit
 6fb9bca (HEAD -> master) HEAD@{3}: commit (initial): first commit
 ```
 
-查看图形化提交记录：
+# 6、查看差异
+
+| 描述                                          | 命令                                    |
+| --------------------------------------------- | --------------------------------------- |
+| 查看工作区修改（工作区 VS 本地仓库）          | git diff                                |
+| 查看本地仓库修改（工作区/暂存区 VS 本地仓库） | git diff HEAD                           |
+| 查看暂存区修改（暂存区 VS 本地仓库）          | git diff --cached<br/>git diff --staged |
+| 比较版本之间的差异                            | git diff 88a7a69 6fb9bca                |
+| 比较当前版本和前个版本之间的差异              | git diff HEAD~ HEAD                     |
+| 比较分支之间的差异                            | git diff main dev                       |
+| 指定具体文件名                                | git diff 88a7a69 6fb9bca file2.txt      |
+
+# 7、回退和撤销
+
+![image-20240427184124816](./assets/image-20240427184124816.png)
+
+| 描述（回退）                                                 | 命令                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 回退到某一个版本，并且丢弃工作区和暂存区的所有修改内容       | git reset --hard 6fb9bca                                     |
+| 回退到某一个版本，并且保留工作区和暂存区的所有修改内容       | git reset --soft 6fb9bca<br>指定具体文件<br>git reset --soft HEAD~2 file1.txt |
+| 回退到某一个版本，只保留工作区的修改内容，丢弃暂存区的修改内容 | git reset --mixed 6fb9bca<br>指定具体文件：<br>git reset --mixed HEAD^ file1.txt |
+| **描述（撤销）**                                             | **命令**                                                     |
+| 撤销最新一次提交                                             | git revert HEAD                                              |
+| 撤销前一次提交                                               | git revert HEAD^                                             |
+| 撤销某一次提交                                               | git revert 6fb9bca                                           |
+
+**回退和撤销的区别：**revert是用一次新的提交来回滚之前的提交，reset是直接删除指定提交。
+
+# 8、远程仓库
+
+| 描述                                                         | 命令                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 查看远程仓库地址                                             | git remote -v                                                |
+| 添加远程仓库，同时指定简写                                   | git remote add pb https://github...<br>git remote add origin https://github... |
+| 取消关联远程仓库                                             | git remote remove origin                                     |
+| 设置多个远程仓库<br>不能用git remote add命令，会报错         | git remote set-rul --add pb https://github...                |
+| 修改远程仓库地址                                             | git remote set-url origin git@github...git                   |
+| fetch：将数据拉取到本地仓库<br>不会合并到本地分支，需要手动合并 | git fetch origin                                             |
+| pull：拉取数据并合并到当前所在分支                           | git pull<br>相当于：<br>git fetch<br>git merge FETCH_HEAD    |
+| pull-rebase：拉取数据并将当前分支修改嫁接至最新节点上        | git pull --rebase<br>相当于：<br>git fetch<br>git rebase FETCH_HEAD |
+|                                                              |                                                              |
+|                                                              |                                                              |
+|                                                              |                                                              |
+
+
+
+
 
 ```bash
-git log --oneline --graph --decorate --all
 # 命令太长可定义别名
 alias graph="git log --oneline --graph --decorate --all"
 # 定义了别名之后就可以用别名查看
 graph
+# 简化命令 git status => git st
+git config --global alias.st status
+# 给当前的提交打上标签，通常用于版本发布
+git tag "first release"
 ```
-
-# 7、查看差异
-
-```bash
-# 查看工作区修改（工作区 VS 本地仓库）
-git diff
-
-# 查看本地仓库修改（工作区/暂存区 VS 本地仓库）
-git diff HEAD
-
-# 查看暂存区修改（暂存区 VS 本地仓库）
-git diff --cached
-git diff --staged
-
-# 比较版本之间的差异
-git diff 88a7a69 6fb9bca
-
-# 比较当前版本和前个版本之间的差异
-git diff HEAD~ HEAD
-
-# 比较分支之间的差异
-git diff main dev
-
-# 指定具体文件名
-git diff 88a7a69 6fb9bca file2.txt
-```
-
-**一般使用GUI工具查看差异会更方便些。**
-
-# 8、删除文件
-
-## 8.1、先删除后提交
-
-```bash
-# 先通过LINUX命令删除文件
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ rm file4.txt
-
-# 此时工作区中file4已被删除，提示需要将该file4被删除的状态提交到暂存区
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ git status
-On branch master
-Changes not staged for commit:
-  (use "git add/rm <file>..." to update what will be committed)
-  (use "git restore <file>..." to discard changes in working directory)
-        deleted:    file4.txt
-
-no changes added to commit (use "git add" and/or "git commit -a")
-
-# 将被删除状态提交至暂存区
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ git add file4.txt
-
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ git status
-On branch master
-Changes to be committed:
-  (use "git restore --staged <file>..." to unstage)
-        deleted:    file4.txt
-        
-# 将file4被删除的状态提交至本地仓库，即让本地仓库删除该文件
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ git commit -m "delete file4"
-[master 87f7c64] delete file4
- 1 file changed, 1 deletion(-)
- delete mode 100644 file4.txt
-```
-
-## 8.2、Git删除
-
-### 8.2.1、把文件从工作区和暂存区同时删除
-
-```bash
-git rm readme.md
-```
-
-相当于：
-
-```bash
-rm readme.md
-git add .
-```
-
-### 8.2.2、把文件从暂存区删除但保留在工作区
-
-```bash
-git rm --cached readme.md
-```
-
-### 8.2.3、递归删除某个目录下的所有子目录和文件
-
-```bash
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ ls
-file1.txt  file2.txt  file3.txt  file5.txt  test-rm/
-
-# 进入目标文件夹
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ cd test-rm
-
-# 递归删除该文件夹下的所有子目录和文件
-ryualvin ~/Desktop/GitTest/repo-rm/test-rm (master)
-$ git rm -r *
-rm 'test-rm/test-rm-1/test-rm.txt'
-
-ryualvin ~/Desktop/GitTest/repo-rm/test-rm (master)
-$ cd ..
-
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ ls
-file1.txt  file2.txt  file3.txt  file5.txt  test-rm/
-
-ryualvin ~/Desktop/GitTest/repo-rm (master)
-$ cd test-rm
-
-# 目标文件夹下的所有子目录和文件夹都已被删除
-ryualvin ~/Desktop/GitTest/repo-rm/test-rm (master)
-$ ls -altr
-total 4
-drwxr-xr-x 1 ryualvin 197121 0 May  4 16:21 ../
-drwxr-xr-x 1 ryualvin 197121 0 May  4 16:21 ./
-```
-
-**注意：以上删除操作后不要忘记提交！！！**
 
 # 9、忽略文件
 
@@ -997,58 +657,6 @@ Merge会产生一个新的提交，这个提交有两个分支的所有修改。
 一般来说，如果你只是想把两个分支合并起来而不关心提交历史的话，那么就可以使用git merge命令。
 
 如果你确定只有你自己再一个分支上开发，并且希望提交历史更加的清晰明了，那么就建议使用git rebase命令。
-
-# 15、Stash
-
-Stash操作可以把当前工作现场储藏起来，等以后恢复现场后继续工作。
-
--u参数表示把所有未跟踪的文件也一起存储，-a参数表示把所有未跟踪的文件和忽略的文件也一并存储，save参数表示存储的信息，可以不写。
-
-```bash
-git stash save "message"
-```
-
-查看所有stash：
-
-```bash
-git stash list
-```
-
-恢复最近一次stash（**弹栈，恢复后旧从stash list中删除**）：
-
-```bash
-git stash pop
-```
-
-恢复指定的stash，stash@{2}表示第三个stash，stash@{0}表示最近的stash。
-
-```bash
-git stash pop stash@{2}
-```
-
-重新接收最近一次stash（**只应用，不弹栈，恢复后不从stash list中删除**）：
-
-```bash
-git stash apply
-```
-
-接收指定的stash，stash@{2}表示第三个stash，stash@{0}表示最近的stash。
-
-```
-git stash apply stash@{2}
-```
-
-pop和apply的区别是，pop会把stash内容删除，而apply不会。可以用git stash drop来删除stash。
-
-```bash
-git stash drop stash@{2}
-```
-
-删除所有stash：
-
-```bash
-git stash clear
-```
 
 # 16、Git Flow
 
