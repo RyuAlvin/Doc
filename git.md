@@ -66,6 +66,7 @@ https://blog.csdn.net/albertsh/article/details/106448035
 | 查看全局配置和系统配置，或者所有配置 | git config --global --list<br/>git config --system --list<br/>git config --list |
 | 查看某一项配置                       | git config user.name                                         |
 | 获取config命令的手册                 | git help config                                              |
+| 简化命令                             | 将命令git status简化为st：<br>git config --global alias.st status |
 
 # 3、创建仓库
 
@@ -118,12 +119,12 @@ Untracked files:
 
 # 5、提交历史
 
-| 描述               | 命令                                       |
-| ------------------ | ------------------------------------------ |
-| 查看版本信息       | git log                                    |
-| 一行显示版本信息   | git log --oneline                          |
-| 查看图形化提交记录 | git log --oneline --graph --decorate --all |
-| 查看所有操作记录   | git reflog --oneline                       |
+| 描述               | 命令                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| 查看版本信息       | git log                                                      |
+| 一行显示版本信息   | git log --oneline<br>git log --oneline --decorate            |
+| 查看图形化提交记录 | git log --oneline --graph --decorate --all<br>命令太长，可以起别名：<br>alias graph="git log --oneline --graph --decorate --all" |
+| 查看所有操作记录   | git reflog --oneline                                         |
 
 **log和reflog的区别：**
 
@@ -198,11 +199,39 @@ c6db37e HEAD@{2}: commit: second commit
 | fetch：将数据拉取到本地仓库<br>不会合并到本地分支，需要手动合并 | git fetch origin                                             |
 | pull：拉取数据并合并到当前所在分支                           | git pull<br>相当于：<br>git fetch<br>git merge FETCH_HEAD    |
 | pull-rebase：拉取数据并将当前分支修改嫁接至最新节点上        | git pull --rebase<br>相当于：<br>git fetch<br>git rebase FETCH_HEAD |
-|                                                              |                                                              |
-|                                                              |                                                              |
-|                                                              |                                                              |
+| 推送到远程仓库                                               | git push origin master                                       |
+| 本地仓库上传git服务器                                        | git init<br>git add .<br>git commit -m "msg"<br>git remote add origin https://...<br>本地分支关联远程分支(远程分支 本地分支)：<br>git branch --set-upstream-to=origin/master master<br>允许合并不相关的历史：<br>git pull origin master --allow-unrelated-histories<br>如果当前分支与多个主机存在追踪关系，<br>则-u会指定一个默认主机，<br>这样后面就可以不加任何参数使用git push<br>git push -u origin master |
+| 查看远程仓库                                                 | git remote show origin                                       |
+| 移除远程仓库                                                 | git remote rm origin                                         |
+| 重命名远程仓库                                               | git remote rename old-name new-name                          |
 
+# 9、分支操作
 
+| 描述                                                         | 命令                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 显示本地所有分支                                             | git branch                                                   |
+| 显示远程所有分支                                             | git branch -r                                                |
+| 显示本地所有分支的最后一次提交                               | git branch -v                                                |
+| 显示本地所有分支的最后一次提交<br>以及跟踪的远程分支信息（如果有） | git branch -vv                                               |
+| 查看哪些分支已合并到当前分支                                 | git branch --merged                                          |
+| 查看哪些分支未合并到当前分支                                 | git branch --no-merged                                       |
+| 创建分支                                                     | git branch test                                              |
+| 切换至其他分支                                               | git checkout dev                                             |
+| 创建并切换分支                                               | git checkout -b fix                                          |
+| 删除本地分支<br>指定的分支已经被完全合并到当前分支时才能成功删除 | git branch -d dev                                            |
+| 强制删除本地分支<br>不检查是否合并，强制删除                 | git branch -D dev                                            |
+| 删除远程分支                                                 | git push origin --delete master                              |
+| 将本地分支推送到远程仓库origin/master分支                    | git push origin master<br>git push origin master:master      |
+| 当前本地分支为master，抓取远程仓库数据并合并                 | git fetch origin<br>git merge origin/master                  |
+| 将本地所有分支都推送到远程主机                               | git push --all origin                                        |
+| 强制推送（最好不用）                                         | git push --force origin                                      |
+| 创建一个新的本地分支dev并设置远程追踪                        | git checkout --track origin/dev                              |
+| 创建一个与远程分支不同名的本地分支                           | git checkout -b ryu-dev origin/dev                           |
+| 为已有的本地分支设置远程追踪分支                             | git checkout master<br>git branch -u origin/master<br>或：<br>git branch --set-upstream-to origin/master |
+| 将远程仓库拉取到本地仓库临时分支并手动合并<br>如果本地存在临时分支则覆盖，不存在则创建 | git fetch origin master:tmp<br>比较本地代码和刚下载的代码的区别：<br>git diff tmp<br>合并tmp分支到本地的master分支：<br>git merge tmp<br>如果不想保留tmp，可删除：<br>git branch -d tmp |
+| 基于本地分支创建远程分支                                     | git push origin bk_master:bk_master                          |
+| 本地新分支和远程新分支关联                                   | git push --set-upstream origin bk_master                     |
+|                                                              |                                                              |
 
 
 
