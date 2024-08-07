@@ -231,293 +231,10 @@ c6db37e HEAD@{2}: commit: second commit
 | 将远程仓库拉取到本地仓库临时分支并手动合并<br>如果本地存在临时分支则覆盖，不存在则创建 | git fetch origin master:tmp<br>比较本地代码和刚下载的代码的区别：<br>git diff tmp<br>合并tmp分支到本地的master分支：<br>git merge tmp<br>如果不想保留tmp，可删除：<br>git branch -d tmp |
 | 基于本地分支创建远程分支                                     | git push origin bk_master:bk_master                          |
 | 本地新分支和远程新分支关联                                   | git push --set-upstream origin bk_master                     |
-|                                                              |                                                              |
 
+# 10、合并操作
 
-
-```bash
-# 命令太长可定义别名
-alias graph="git log --oneline --graph --decorate --all"
-# 定义了别名之后就可以用别名查看
-graph
-# 简化命令 git status => git st
-git config --global alias.st status
-# 给当前的提交打上标签，通常用于版本发布
-git tag "first release"
-```
-
-# 9、忽略文件
-
-## 9.1、应该忽略哪些文件
-
-- 系统或者软件自动生成的文件；
-- 编译产生的中间文件和结果文件；
-- 运行时生成日志文件、缓存文件、临时文件；
-- 涉及身份、密码、口令、密钥等敏感信息文件。
-
-## 9.2、匹配规则
-
-> 规则
-
-- 从上到下逐行匹配，每一行表示一个忽略模式
-- 空行或者以#开头的行会被Git忽略。一般空行用于可读性的分离，#一般用作注释；
-- 使用标准的Blob模式匹配，例如：
-  - 星号*通配任意个字符；
-  - 问好?匹配单个字符；
-  - 中括号[]表示匹配列表中的单个字符，比如：[abc]表示a/b/c；
-- 两个星号**表示匹配任意的中间目录；
-- 中括号可以使用短中线链接，比如：
-  - [0-9]表示任意一位数字，[a-z]表示任意一位小写字母；
-- 感叹号!表示取反。
-
-> 举例
-
-```bash
-# 忽略所有的 .a 文件
-*.a
-# 但跟踪所有的 lib.a，即便你在前面忽略了 .a 文件
-!lib.a
-# 只忽略当前目录下的 TODO 文件，而不忽略 subdir/TODO，/ 表示根目录
-/TODO
-# 忽略任何目录下名为 build 的文件夹
-build/
-# 忽略 doc/notes.txt，但不忽略 doc/server/arch.txt
-doc/*.txt
-# 忽略 doc/ 目录及其所有子目录下的 .pdf 文件
-doc/**/*.pdf
-```
-
-**在Github上提供了各种常用语言的忽略文件的模板，在新建仓库的时候可以直接使用：**
-
-https://github.com/github/gitignore
-
-## 9.3、注意点
-
-- 即使在.gitignore中增加已经被纳入版本控制的文件，也起不到忽略作用。必须先将文件从版本库中移出，才会起到忽略作用：
-
-  ```bash
-  # 将temp文件忽略
-  ryualvin ~/Desktop/GitTest/repo-ignore (master)
-  $ cat .gitignore
-  temp.txt
-  
-  # 将文件移出版本库
-  ryualvin ~/Desktop/GitTest/repo-ignore (master)
-  $ git rm --cached temp.txt
-  rm 'temp.txt'
-  
-  # 对该文件做修改
-  ryualvin ~/Desktop/GitTest/repo-ignore (master)
-  $ echo "add line2" >> temp.txt
-  
-  # 修改被忽略
-  ryualvin ~/Desktop/GitTest/repo-ignore (master)
-  $ git status
-  On branch master
-  nothing to commit, working tree clean
-  ```
-
-- 空文件夹，不会被纳入版本控制：
-
-  ```bash
-  # 创建空文件夹
-  ryualvin ~/Desktop/GitTest/repo-ignore (master)
-  $ mkdir emptyfolder
-  
-  # 空文件夹不被跟踪
-  ryualvin ~/Desktop/GitTest/repo-ignore (master)
-  $ git status
-  On branch master
-  nothing to commit, working tree clean
-  
-  # 在文件夹中添加文件
-  ryualvin ~/Desktop/GitTest/repo-ignore (master)
-  $ echo "line1" >> emptyfolder/newfile1.txt
-  
-  # 状态显示有未被跟踪的文件
-  ryualvin ~/Desktop/GitTest/repo-ignore (master)
-  $ git status
-  On branch master
-  Untracked files:
-    (use "git add <file>..." to include in what will be committed)
-          emptyfolder/
-  
-  nothing added to commit but untracked files present (use "git add" to track)
-  ```
-
-# 10、克隆远程仓库
-
-HTTPS方式在把本地代码push到远程仓库的时候，需要验证用户名和密码。
-
-SSH方式在推送的时候不需要验证用户名和密码，但是需要在GitHub上添加SSH公钥（锁）的配置。
-
-**注意：在2021年8月13日以后，HTTPS的这种方式已经被GitHub停止使用，所以推荐大家使用SSH的方式。**
-
-## 10.1、生成公钥（锁）和密钥
-
-```bash
-ryualvin /d/develop/git/SSH-Key
-# -t rsa：指定协议
-# -f：指定文件名
-# -C：备注
-$ ssh-keygen -t rsa -f id_rsa_github_Ryuxxx -C "github ryualvin ssh"
-Generating public/private rsa key pair.
-Enter passphrase (empty for no passphrase):
-Enter same passphrase again:
-Your identification has been saved in id_rsa_github_Ryuxxx
-Your public key has been saved in id_rsa_github_Ryuxxx.pub
-The key fingerprint is:
-SHA256:5Qlk+NdULurwxxxxxIMCPA9Mj72J7QpZPrUHM github ryualvin ssh
-The key's randomart image is:
-+---[RSA 3072]----+
-| xxxxxxxxxxxxxxx |
-+----[SHA256]-----+
-```
-
-## 10.2、配置公钥（锁）
-
-将公钥（锁）配置到GitHub：
-
-![image-20240504213434384](./assets/image-20240504213434384.png)
-
-## 10.3、指定私钥
-
-如果是第一次配置，并且在创建密钥的时候没有修改过默认的文件名的话，SSH密钥的配置到这里就完成了。
-
-但是如果在生成密钥的时候指定新的文件名，或者对于不同的网站需要配套不同的SSH密钥的时候，就需要进一步在config文件中配置：D:\develop\git\Git\etc\ssh\ssh_config
-
-```bash
-# 访问gitee的SSH密钥
-# Host别名
-Host gitee_Ryuxxx
-# gitee地址
- 	HostName gitee.com
-# git@gitee.com
- 	User git
-# 通过.pub文件认证
- 	PreferredAuthentications publickey
-# 密钥文件地址
- 	IdentityFile D:\develop\git\SSH-Key\id_rsa_gitee_Ryuxxx
-
-# 访问github的SSH密钥
-# Host别名
-Host github_Ryuxxx
-# github地址
- 	HostName github.com
-# git@github.com
- 	User git
-# 通过.pub文件认证
- 	PreferredAuthentications publickey
-# 密钥文件地址
- 	IdentityFile D:\develop\git\SSH-Key\id_rsa_github_Ryuxxx
-```
-
-## 10.4、克隆
-
-```bash
-ryualvin ~/Desktop/GitTest
-# git@github.com:Ryuxxx/remote-repo.git ->
-# github_Ryuxxx:Ryuxxx/remote-repo.git
-$ git clone github_Ryuxxx:Ryuxxx/remote-repo.git
-Cloning into 'remote-repo'...
-# 输入创建SSH密钥时候的密码
-Enter passphrase for key 'D:\develop\git\SSH-Key\id_rsa_github_Ryuxxx':
-remote: Enumerating objects: 3, done.
-remote: Counting objects: 100% (3/3), done.
-remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
-# 克隆成功
-Receiving objects: 100% (3/3), done.
-```
-
-# 11、关联本地和远程仓库
-
-```bash
-# 本地仓库local-repo，远程仓库remote-repo
-ryualvin ~/Desktop/GitTest/local-repo (master)
-$ git remote add origin github_Ryuxxx:Ryuxxx/remote-repo.git
-
-ryualvin ~/Desktop/GitTest/local-repo (master)
-# 拉取远程仓库
-# 本地和远程仓库中都存在一个file1文件，且文件内容不一致
-# --allow-unrelated-histories：该选项可以合并两个独立启动仓库的历史（实际上本地和远程是两个独立的仓库），不加该选项会出现错误：fatal: refusing to merge unrelated histories
-$ git pull origin master --allow-unrelated-histories
-Enter passphrase for key 'D:\develop\git\SSH-Key\id_rsa_github_Ryuxxx':
-remote: Enumerating objects: 9, done.
-# ...
-From github_Ryuxxx:Ryuxxx/remote-repo
- * branch            master     -> FETCH_HEAD
- * [new branch]      master     -> origin/master
-Auto-merging file1.txt
-CONFLICT (add/add): Merge conflict in file1.txt
-Automatic merge failed; fix conflicts and then commit the result.
-
-ryualvin ~/Desktop/GitTest/local-repo (master|MERGING)
-$ git status
-On branch master
-You have unmerged paths.
-  (fix conflicts and run "git commit")
-  (use "git merge --abort" to abort the merge)
-# 来自远程仓库的新文件file2
-Changes to be committed:
-        new file:   file2.txt
-# 来自远程仓库的冲突文件file1，需要手动解决冲突内容
-Unmerged paths:
-  (use "git add <file>..." to mark resolution)
-        both added:      file1.txt
-
-ryualvin ~/Desktop/GitTest/local-repo (master|MERGING)
-$ cat file1.txt
-<<<<<<< HEAD
-local file1
-=======
-file11111
-2222222222222222
->>>>>>> 85b263ebc71c8380f6ae3cf7403a1979178e0f29
-
-# 解决冲突后推送到远程
-ryualvin ~/Desktop/GitTest/local-repo (master)
-$ git push origin master
-Enter passphrase for key 'D:\develop\git\SSH-Key\id_rsa_github_Ryuxxx':
-# ...
-Total 6 (delta 0), reused 0 (delta 0), pack-reused 0
-To github_Ryuxxx:Ryuxxx/remote-repo.git
-   85b263e..b5fd819  master -> master
-```
-
-#  12、分支操作
-
-```bash
-# 查看分支列表
-git branch
-
-# 创建分支（只创建，未切换）
-git branch dev
-
-# 切换分支
-git checkout main
-# checkout还能恢复一个文件或目录到之前的某一个状态。比如我们可能意外地修改了某一个文件，这个时候就可以使用git checkout命令来恢复我们到我们修改之前的状态，而这个时候如果分支名称和文件名称相同的话就会出现歧义，因为git checkout命令会默认切换分支而不是恢复文件。为了避免这种歧义，Git官方在2.23版本开始为我们提供了一个新的命令（git switch）专门用来切换分支。
-git switch main
-
-# 创建分支并切换
-git checkout -b dev
-# 创建分支并指定回退到某个时间点的版本号
-git checkout -b dev 244d35
-
-# 合并分支（在main分支上合并dev分支的内容）
-git merge dev
-
-# 删除已合并分支
-git branch -d dev
-# 若删除未合并分支会报以下错误
-error: The branch 'newDev' is not fully merged.
-If you are sure you want to delete it, run 'git branch -D newDev'.
-
-# 删除未合并分支（强制删除）
-git branch -D dev
-
-# 修改分支名
-git branch -m dev newDev
-```
+## 10.1、merge
 
 合并分支a到分支b，--no-ff参数表示禁用Fast forward模式，合并后的历史有分支，能看出曾经做过合并。
 
@@ -535,9 +252,11 @@ git merge --ff -m "message" <branch-name>
 
 ![image-20240505215231459](./assets/image-20240505215231459.png)
 
+## 10.2、squash merge
+
 合并&压缩所有提交到一个提交。
 
-解决的是什么问题？由于在dev分支上执行的是开发工作，有一些很小的提交，或者是纠正前面的错误的提交，对于这类提交对整个工程来说不需要单独显示出来一次提交，不然导致项目的提交历史过去复杂；所以基于这种原因，我们可以把dev上的所有提交都合并成一个提交，然后提交到主干。
+解决的是什么问题？由于在dev分支上执行的是开发工作，有一些很小的提交，或者是纠正前面的错误的提交，对于这类提交对整个工程来说不需要单独显示出来一次提交，不然导致项目的提交历史过于复杂。所以基于这种原因，我们可以把dev上的所有提交都合并成一个提交，然后提交到主干。
 
 **注意：squash merge并不会替你产生提交，它只是把所有的改动合并，然后放在本地文件，需要你再次手动执行提交操作。**
 
@@ -591,103 +310,297 @@ $ git log --oneline --graph --decorate --all
 * f03bbfd master:1
 ```
 
-# 13、解决合并冲突
+## 10.3、rebase
 
-1. 两个分支未修改同一个文件的同一处位置：Git自动合并；
+### 10.3.1、什么是rebase
 
-2. 两个分支修改了同一个文件的同一处位置：产生冲突；
+git会先找到当前分支和目标分支的共同祖先，这里也就是main:3这个节点。再把当前分支上从共同祖先到最新提交节点的所有提交都嫁接移植到目标分支的最新提交节点后面。
 
-   - 解决方法：
-
-     ```bash
-     ryualvin ~/Desktop/GitTest/local-repo (master)
-     $ git merge dev
-     Auto-merging file1.txt
-     CONFLICT (content): Merge conflict in file1.txt
-     Automatic merge failed; fix conflicts and then commit the result.
-     
-     # 可用git status查看产生冲突的文件
-     $ git status
-     On branch master
-     You have unmerged paths.
-       (fix conflicts and run "git commit")
-       (use "git merge --abort" to abort the merge)
-     
-     Unmerged paths:
-       (use "git add <file>..." to mark resolution)
-             both modified:   file1.txt
-     
-     no changes added to commit (use "git add" and/or "git commit -a")
-     
-     # 也可用git diff 查看产生冲突的文件
-     $ git diff
-     diff --cc file1.txt
-     index ae6642c,a4abf37..0000000
-     --- a/file1.txt
-     +++ b/file1.txt
-     @@@ -1,4 -1,4 +1,8 @@@
-       local file1
-       file11111
-       2222222222222222
-     ++<<<<<<< HEAD
-      +master:1
-     ++=======
-     + dev:1
-     ++>>>>>>> dev
-     
-     # 手动修改冲突文件，合并冲突内容后提交
-     $ git commit -am "merge conflict"
-     ```
-
-   - 中止合并：
-
-     ```bash
-     git merge --abort
-     ```
-
-# 14、Rebase
-
-## 14.1、什么是Rebase
-
-Git会先找到当前分支和目标分支的共同祖先，这里也就是main:3这个节点。再把当前分支上从共同祖先到最新提交节点的所有提交都嫁接移植到目标分支的最新提交节点后面。
-
-> 在dev分支上做变基操作
+**在dev分支上做变基操作：**
 
 ![image-20240505210443018](./assets/image-20240505210443018.png)
 
-> 在main分支上做变基操作
+**在main分支上做变基操作：**
 
 ![image-20240505210533284](./assets/image-20240505210533284.png)
 
-## 14.2、Rebase和Merge比较
+### 10.3.2、rebase和merge比较
 
-### 14.2.1、区别
+rebase不会产生新的提交，而是把当前分支的每一个提交都复制到目标分支上，然后再把当前分支指向目标分支。
 
-Rebase不会产生新的提交，而是把当前分支的每一个提交都复制到目标分支上，然后再把当前分支指向目标分支。
+merge会产生一个新的提交，这个提交有两个分支的所有修改。
 
-Merge会产生一个新的提交，这个提交有两个分支的所有修改。
-
-> Merge的优缺点
+**merge的优缺点：**
 
 优点：不会破坏原分支的提交历史，所有提交记录和合并历史都会保留下来，方便后续查看和回滚。
 
 缺点：会产生额外的提交记录和两条分支线的合并，会使得提交记录变得复杂。
 
-> Rebase优缺点
+**rebase优缺点：**
 
 优点：不需要新增额外的提交记录到目标分支，可以形成一个线性的提交历史记录，非常直观和干净。
 
-缺点：会改变提交历史，改变当前分支branch out的节点。因此避免在公共分支上进行变基操作，会对和你一起在这个分支上开发的同事造成一些困扰（多人协作时，不要对已经推送到远程的分支执行Rebase操作）。
+缺点：会改变提交历史，改变当前分支branch out的节点。因此避免在公共分支上进行变基操作，会对和你一起在这个分支上开发的同事造成一些困扰（多人协作时，不要对已经推送到远程的分支执行rebase操作）。
 
-### 14.2.2、如何选择
+## 10.4、cherry-pick
 
-仁者见仁智者见智的问题。
+| 描述                                                         | 命令                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 将特定提交从一个分支应用到另一个分支                         | git  cherry-pick hash1                                       |
+| 摘取多个提交                                                 | git cherry-pick hash1 hash2                                  |
+| 摘取的过程中可能遇到合并冲突，<br>这种情况下git会暂停操作，要求你手动解决冲突 | 解决冲突后：<br>git add resolved-files<br>git cherry-pick --continue<br>如果决定中止摘取：<br>git cherry-pick --abort |
+| 应用提交但不自动提交<br>允许你对多个提交进行摘取，然后一次性提交 | git cherry-pick -n hash1 hash2                               |
+| 在提交消息中添加原始提交的哈希值，便于跟踪                   | git cherry-pick -x hash1 hash2                               |
+| 设定开始到结束，start-hash在end-hash之前提交<br>1.7.2版本开始才能使用 | git cherry-pick start-hash end-hash                          |
 
-一般来说，如果你只是想把两个分支合并起来而不关心提交历史的话，那么就可以使用git merge命令。
+# 11、忽略文件
 
-如果你确定只有你自己再一个分支上开发，并且希望提交历史更加的清晰明了，那么就建议使用git rebase命令。
+## 11.1、.gitignore
 
-# 16、Git Flow
+### 11.1.1、应该忽略哪些文件
+
+- 系统或者软件自动生成的文件；
+- 编译产生的中间文件和结果文件；
+- 运行时生成日志文件、缓存文件、临时文件；
+- 涉及身份、密码、口令、密钥等敏感信息文件。
+
+### 11.1.2、匹配规则
+
+**规则：**
+
+- 从上到下逐行匹配，每一行表示一个忽略模式
+- 空行或者以#开头的行会被Git忽略。一般空行用于可读性的分离，#一般用作注释；
+- 使用标准的Blob模式匹配，例如：
+  - 星号*通配任意个字符；
+  - 问好?匹配单个字符；
+  - 中括号[]表示匹配列表中的单个字符，比如：[abc]表示a/b/c；
+- 两个星号**表示匹配任意的中间目录；
+- 中括号可以使用短中线链接，比如：
+  - [0-9]表示任意一位数字，[a-z]表示任意一位小写字母；
+- 感叹号!表示取反。
+
+**举例：**
+
+```bash
+# 忽略所有的 .a 文件
+*.a
+# 但跟踪所有的 lib.a，即便你在前面忽略了 .a 文件
+!lib.a
+# 只忽略当前目录下的 TODO 文件，而不忽略 subdir/TODO，/ 表示根目录
+/TODO
+# 忽略任何目录下名为 build 的文件夹
+build/
+# 忽略 doc/notes.txt，但不忽略 doc/server/arch.txt
+doc/*.txt
+# 忽略 doc/ 目录及其所有子目录下的 .pdf 文件
+doc/**/*.pdf
+```
+
+**在Github上提供了各种常用语言的忽略文件的模板，在新建仓库的时候可以直接使用：**
+
+https://github.com/github/gitignore
+
+### 11.1.3、注意点
+
+**即使在.gitignore中增加已经被纳入版本控制的文件，也起不到忽略作用。必须先将文件从版本库中移出，才会起到忽略作用：**
+
+```bash
+# 将temp文件忽略
+ryualvin ~/Desktop/GitTest/repo-ignore (master)
+$ cat .gitignore
+temp.txt
+
+# 将文件移出版本库
+ryualvin ~/Desktop/GitTest/repo-ignore (master)
+$ git rm --cached temp.txt
+rm 'temp.txt'
+
+# 对该文件做修改
+ryualvin ~/Desktop/GitTest/repo-ignore (master)
+$ echo "add line2" >> temp.txt
+
+# 修改被忽略
+ryualvin ~/Desktop/GitTest/repo-ignore (master)
+$ git status
+On branch master
+nothing to commit, working tree clean
+```
+
+**空文件夹，不会被纳入版本控制：**
+
+```bash
+# 创建空文件夹
+ryualvin ~/Desktop/GitTest/repo-ignore (master)
+$ mkdir emptyfolder
+
+# 空文件夹不被跟踪
+ryualvin ~/Desktop/GitTest/repo-ignore (master)
+$ git status
+On branch master
+nothing to commit, working tree clean
+
+# 在文件夹中添加文件
+ryualvin ~/Desktop/GitTest/repo-ignore (master)
+$ echo "line1" >> emptyfolder/newfile1.txt
+
+# 状态显示有未被跟踪的文件
+ryualvin ~/Desktop/GitTest/repo-ignore (master)
+$ git status
+On branch master
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        emptyfolder/
+
+nothing added to commit but untracked files present (use "git add" to track)
+```
+
+## 11.2、assume-unchanged
+
+| 描述               | 命令                                             |
+| ------------------ | ------------------------------------------------ |
+| 忽略               | git update-index --assume-unchanged file1.txt    |
+| 取消假定未更改     | git update-index --no-assume-unchanged file1.txt |
+| 查看忽略了哪些文件 | git ls-files -v \| grep '^h\ '                   |
+
+**作用：**
+
+- 该命令告诉 Git 假定某个文件没有更改，即使该文件实际上已经被修改。
+- 适用于临时修改某些文件且不希望这些修改被 Git 跟踪的情况。
+- 该文件在本地不会被跟踪到新状态，也不会影响其他分支或同一分支的其他副本。
+
+**适用场景：**
+
+- 性能优化：在处理大文件或频繁变化的文件时，通过 `assume-unchanged` 可以减少 Git 需要处理的文件数量，从而提升性能。
+- 临时配置：适用于临时修改的配置文件。
+
+**注意事项：**
+
+- 该命令主要用于告诉 Git 跳过文件的变化检测，通常在本地使用，目的是提高性能。
+- 本地作用：只在本地生效，不影响其他协作者。
+
+## 11.3、skip-worktree
+
+| 描述                  | 命令                                          |
+| --------------------- | --------------------------------------------- |
+| 忽略                  | git update-index --skip-worktree file1.txt    |
+| 取消跳过工作目录检查  | git update-index --no-skip-worktree file1.txt |
+| 查看skip-worktree列表 | git ls-files -v \| grep '^S\ '                |
+
+**作用：**
+
+- 该命令告诉 Git 跳过工作目录中的文件，不要检查该文件的变化。
+- 主要用于已提交的文件，在需要修改这些文件但又不希望这些修改被提交时使用。
+- Git 不会检查文件的变化，也不会显示这些文件的状态。
+
+**适用场景：**
+
+- 忽略不相关的本地改动：适用于在多人协作项目中忽略对配置文件等做的本地修改。
+- 保持特定文件的本地修改：避免特定文件的本地修改被提交或干扰其他开发者的工作。
+
+**注意事项：**
+
+- 该命令适用于那些你不希望被 Git 跟踪变化的文件，例如在一个多人项目中忽略本地特有的配置文件。
+- 在某些情况下，`skip-worktree` 可能导致意外行为，因为 Git 完全忽略了这些文件的变化。
+
+**assume-unchanged和skip-worktree主要区别：**
+
+1. 行为和目的：
+   - `--assume-unchanged`：假定文件没有变化，主要用于提高性能，不适用于文件内容需要长期忽略的场景，用于临时告诉 Git 假定文件没有变化。
+   - `--skip-worktree`：跳过工作目录的文件检查，主要用于忽略特定文件的变化，使其不会出现在 `git status` 中，用于长期忽略特定文件的变化。
+
+2. 适用场景：
+   - `--assume-unchanged`：适用于临时忽略文件变化的场景，例如本地配置文件或临时修改的文件。
+   - `--skip-worktree`：适用于需要长期忽略文件变化的场景，例如项目中的特定配置文件。
+
+3. 恢复正常跟踪：
+   - `--assume-unchanged`：`git update-index --no-assume-unchanged <file>`
+   - `--skip-worktree`：`git update-index --no-skip-worktree <file>`
+
+# 12、克隆远程仓库
+
+HTTPS方式在把本地代码push到远程仓库的时候，需要验证用户名和密码。
+
+SSH方式在推送的时候不需要验证用户名和密码，但是需要在GitHub上添加SSH公钥（锁）的配置。
+
+**注意：在2021年8月13日以后，HTTPS的这种方式已经被GitHub停止使用，所以推荐大家使用SSH的方式。**
+
+## 12.1、生成公钥（锁）和密钥
+
+```bash
+ryualvin /d/develop/git/SSH-Key
+# -t rsa：指定协议
+# -f：指定文件名
+# -C：备注
+$ ssh-keygen -t rsa -f id_rsa_github_Ryuxxx -C "github ryualvin ssh"
+Generating public/private rsa key pair.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in id_rsa_github_Ryuxxx
+Your public key has been saved in id_rsa_github_Ryuxxx.pub
+The key fingerprint is:
+SHA256:5Qlk+NdULurwxxxxxIMCPA9Mj72J7QpZPrUHM github ryualvin ssh
+The key's randomart image is:
++---[RSA 3072]----+
+| xxxxxxxxxxxxxxx |
++----[SHA256]-----+
+```
+
+## 12.2、配置公钥（锁）
+
+将公钥（锁）配置到GitHub：
+
+![image-20240504213434384](./assets/image-20240504213434384.png)
+
+## 12.3、指定私钥
+
+如果是第一次配置，并且在创建密钥的时候没有修改过默认的文件名的话，SSH密钥的配置到这里就完成了。
+
+但是如果在生成密钥的时候指定新的文件名，或者对于不同的网站需要配套不同的SSH密钥的时候，就需要进一步在config文件中配置：D:\develop\git\Git\etc\ssh\ssh_config
+
+```bash
+# 访问gitee的SSH密钥
+# Host别名
+Host gitee_Ryuxxx
+# gitee地址
+ 	HostName gitee.com
+# git@gitee.com
+ 	User git
+# 通过.pub文件认证
+ 	PreferredAuthentications publickey
+# 密钥文件地址
+ 	IdentityFile D:\develop\git\SSH-Key\id_rsa_gitee_Ryuxxx
+
+# 访问github的SSH密钥
+# Host别名
+Host github_Ryuxxx
+# github地址
+ 	HostName github.com
+# git@github.com
+ 	User git
+# 通过.pub文件认证
+ 	PreferredAuthentications publickey
+# 密钥文件地址
+ 	IdentityFile D:\develop\git\SSH-Key\id_rsa_github_Ryuxxx
+```
+
+## 12.4、克隆
+
+```bash
+ryualvin ~/Desktop/GitTest
+# git@github.com:Ryuxxx/remote-repo.git ->
+# github_Ryuxxx:Ryuxxx/remote-repo.git
+$ git clone github_Ryuxxx:Ryuxxx/remote-repo.git
+Cloning into 'remote-repo'...
+# 输入创建SSH密钥时候的密码
+Enter passphrase for key 'D:\develop\git\SSH-Key\id_rsa_github_Ryuxxx':
+remote: Enumerating objects: 3, done.
+remote: Counting objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
+# 克隆成功
+Receiving objects: 100% (3/3), done.
+```
+
+# 13、Git Flow
 
 GitFlow是一种流程模型，用于在Git上管理软件开发项目。
 
