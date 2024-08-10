@@ -59,8 +59,8 @@ https://blog.csdn.net/albertsh/article/details/106448035
 
 | 描述                                 | 命令                                                         |
 | ------------------------------------ | ------------------------------------------------------------ |
-| 全局配置，所有仓库生效               | git config --global user.name ryualvin<br/>git config --global user.email lsben1014@gmail.com |
-| 系统配置，对所有用户生效             | git config --system user.name ryualvin<br/>git config --system user.email lsben1014@gmail.com |
+| 全局配置，所有仓库生效               | git config --global user.name ryualvin<br/>git config --global user.email xxx@gmail.com |
+| 系统配置，对所有用户生效             | git config --system user.name ryualvin<br/>git config --system user.email xxx@gmail.com |
 | 用户名中如果存在空格，需要加双引号   | git config --global user.name “ryu alvin”                    |
 | 保存用户名和密码                     | git config --global credential.helper store                  |
 | 查看全局配置和系统配置，或者所有配置 | git config --global --list<br/>git config --system --list<br/>git config --list |
@@ -353,18 +353,153 @@ merge会产生一个新的提交，这个提交有两个分支的所有修改。
 | 在提交消息中添加原始提交的哈希值，便于跟踪                   | git cherry-pick -x hash1 hash2                               |
 | 设定开始到结束，start-hash在end-hash之前提交<br>1.7.2版本开始才能使用 | git cherry-pick start-hash end-hash                          |
 
-# 11、忽略文件
+## 10.5、patch
 
-## 11.1、.gitignore
+在 Git 中，`git patch` 并不是一个单独的命令，但它通常是指通过使用 `git diff`, `git format-patch`, `git apply`, 和 `git am` 等命令来创建和应用补丁（patch）文件的过程。补丁文件用于记录文件的差异，可以在不同的代码库或分支之间共享和应用这些差异。下面是一个关于如何创建和应用补丁的详细指南。
 
-### 11.1.1、应该忽略哪些文件
+### 10.5.1、创建补丁文件
+
+补丁文件可以记录工作区的未提交更改或者提交历史中的变更。创建补丁的常用方法有两种：使用 `git diff` 和 `git format-patch`。
+
+**1. 使用 `git diff` 创建补丁**
+
+`git diff` 用于生成工作目录中未提交更改的补丁文件。
+
+```bash
+# 生成工作目录与索引之间的差异补丁
+git diff > my_patch.patch
+# 或者，生成特定文件的补丁
+git diff <file_path> > my_patch.patch
+```
+
+**2. 使用 `git format-patch` 创建补丁**
+
+`git format-patch` 生成的是基于提交的补丁文件，它通常用于在分支或代码库之间分享提交。
+
+```bash
+# 生成从某个提交开始到HEAD的所有提交的补丁文件
+git format-patch <start_commit>..<end_commit>
+# 示例：生成最近三个提交的补丁文件
+git format-patch -3
+# 将最近n次提交生成补丁放到指定目录
+git format-patch -n -o <Output Folder>
+# 将某个提交生成补丁
+git format-patch -1 <commit_hash>
+```
+
+生成的补丁文件会以 `.patch` 或 `.mbox` 格式保存，每个提交对应一个补丁文件。
+
+### 10.5.2、应用补丁文件
+
+应用补丁文件可以使用 `git apply` 或 `git am` 命令，具体取决于补丁的来源（是未提交的更改还是提交历史的补丁）。
+
+**1. 使用 `git apply` 应用补丁**
+
+`git apply` 通常用于应用由 `git diff` 生成的补丁文件。
+
+```bash
+# 应用补丁文件
+git apply my_patch.patch
+# 你也可以应用补丁并立即将变化添加到索引中
+git apply --index my_patch.patch
+# 查看某个补丁的情况
+git apply --stat temp.patch
+# 检查补丁能否被打上
+git apply --check temp.patch
+```
+
+**2. 使用 `git am` 应用补丁**
+
+`git am` 用于应用由 `git format-patch` 生成的提交补丁文件。它会保留补丁文件中的提交信息。
+
+```bash
+# 应用补丁文件到当前分支
+git am 0001-some-change.patch
+# 或者应用一个目录中的所有补丁文件
+git am *.patch
+```
+
+### 10.5.3、处理冲突
+
+在应用补丁时，可能会遇到冲突。处理冲突的步骤如下：
+
+1. **查看冲突**：Git 会提示哪些文件存在冲突，你可以通过 `git status` 查看。
+2. **手动解决冲突**：打开冲突文件，手动编辑解决冲突。
+3. **标记冲突已解决**：使用 `git add <file>` 命令标记冲突文件为已解决。
+4. **继续应用补丁**：使用 `git am --continue` 继续应用剩余的补丁。
+
+```bash
+git am --continue
+```
+
+如果你决定中止应用补丁，可以使用以下命令：
+
+```bash
+git am --abort
+```
+
+### 10.5.4、总结
+
+- **创建补丁**：使用 `git diff` 创建未提交的更改补丁，使用 `git format-patch` 创建已提交的更改补丁。
+- **应用补丁**：使用 `git apply` 应用未提交的更改补丁，使用 `git am` 应用已提交的更改补丁。
+- **处理冲突**：手动解决冲突后继续应用补丁。
+
+通过 `git patch` 的流程，你可以灵活地在不同的代码库、分支或团队成员之间共享和应用特定的代码更改。
+
+# 11、标签操作
+
+在 Git 中，`git tag` 命令用于给某个特定的提交（commit）打上一个标签（tag）。标签通常用于标识发布版本或其他重要的快照。标签有两种类型：轻量级标签（lightweight tag）和附注标签（annotated tag）。
+
+## 11.1、基本用法
+
+| 描述                                                         | 命令                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| 创建轻量级标签<br>在当前分支最新提交HEAD上创建一个名为v1.0的轻量级标签 | git tag v1.0                                                 |
+| 创建附注标签                                                 | git tag -a v1.0 -m "Version 1.0 release"                     |
+| 在特定提交上创建标签                                         | git tag v1.0 9fceb02 <br>git tag -a v1.0 9fceb02 -m "Version 1.0 release" |
+| 列出所有标签                                                 | git tag                                                      |
+| 搜索特定模式的标签                                           | git tag -1 "v1.*"                                            |
+| 查看标签信息<br>显示标签所引用的提交及其附加信息             | git show v1.0                                                |
+
+## 11.2、共享标签
+
+标签不会自动推送到远程仓库，你需要手动推送它们。
+
+| 描述                   | 命令                   |
+| ---------------------- | ---------------------- |
+| 推送单个标签到远程仓库 | git push origin v1.0   |
+| 推送所有标签到远程仓库 | git push origin --tags |
+
+## 11.3、删除标签
+
+| 描述         | 命令                                                         |
+| ------------ | ------------------------------------------------------------ |
+| 删除本地标签 | git tag -d v1.0                                              |
+| 删除远程标签 | 先删除本地标签后再推送删除操作到远程仓库：<br>git push origin --delete v1.0 |
+
+## 11.4、重命名标签
+
+Git 不直接支持重命名标签，但你可以通过以下步骤实现：
+
+```bash
+git tag <new-tagname> <old-tagname>
+git tag -d <old-tagname>
+git push origin <new-tagname>
+git push origin --delete <old-tagname>
+```
+
+# 12、忽略文件
+
+## 12.1、.gitignore
+
+### 12.1.1、应该忽略哪些文件
 
 - 系统或者软件自动生成的文件；
 - 编译产生的中间文件和结果文件；
 - 运行时生成日志文件、缓存文件、临时文件；
 - 涉及身份、密码、口令、密钥等敏感信息文件。
 
-### 11.1.2、匹配规则
+### 12.1.2、匹配规则
 
 **规则：**
 
@@ -400,7 +535,7 @@ doc/**/*.pdf
 
 https://github.com/github/gitignore
 
-### 11.1.3、注意点
+### 12.1.3、注意点
 
 **即使在.gitignore中增加已经被纳入版本控制的文件，也起不到忽略作用。必须先将文件从版本库中移出，才会起到忽略作用：**
 
@@ -454,7 +589,7 @@ Untracked files:
 nothing added to commit but untracked files present (use "git add" to track)
 ```
 
-## 11.2、assume-unchanged
+## 12.2、assume-unchanged
 
 | 描述               | 命令                                             |
 | ------------------ | ------------------------------------------------ |
@@ -464,21 +599,21 @@ nothing added to commit but untracked files present (use "git add" to track)
 
 **作用：**
 
-- 该命令告诉 Git 假定某个文件没有更改，即使该文件实际上已经被修改。
-- 适用于临时修改某些文件且不希望这些修改被 Git 跟踪的情况。
+- 该命令告诉 Git 假定某个文件没有更改，即使该文件实际上已经被修改；
+- 适用于临时修改某些文件且不希望这些修改被 Git 跟踪的情况；
 - 该文件在本地不会被跟踪到新状态，也不会影响其他分支或同一分支的其他副本。
 
 **适用场景：**
 
-- 性能优化：在处理大文件或频繁变化的文件时，通过 `assume-unchanged` 可以减少 Git 需要处理的文件数量，从而提升性能。
+- 性能优化：在处理大文件或频繁变化的文件时，通过 `assume-unchanged` 可以减少 Git 需要处理的文件数量，从而提升性能；
 - 临时配置：适用于临时修改的配置文件。
 
 **注意事项：**
 
-- 该命令主要用于告诉 Git 跳过文件的变化检测，通常在本地使用，目的是提高性能。
+- 该命令主要用于告诉 Git 跳过文件的变化检测，通常在本地使用，目的是提高性能；
 - 本地作用：只在本地生效，不影响其他协作者。
 
-## 11.3、skip-worktree
+## 12.3、skip-worktree
 
 | 描述                  | 命令                                          |
 | --------------------- | --------------------------------------------- |
@@ -488,35 +623,35 @@ nothing added to commit but untracked files present (use "git add" to track)
 
 **作用：**
 
-- 该命令告诉 Git 跳过工作目录中的文件，不要检查该文件的变化。
-- 主要用于已提交的文件，在需要修改这些文件但又不希望这些修改被提交时使用。
+- 该命令告诉 Git 跳过工作目录中的文件，不要检查该文件的变化；
+- 主要用于已提交的文件，在需要修改这些文件但又不希望这些修改被提交时使用；
 - Git 不会检查文件的变化，也不会显示这些文件的状态。
 
 **适用场景：**
 
-- 忽略不相关的本地改动：适用于在多人协作项目中忽略对配置文件等做的本地修改。
+- 忽略不相关的本地改动：适用于在多人协作项目中忽略对配置文件等做的本地修改；
 - 保持特定文件的本地修改：避免特定文件的本地修改被提交或干扰其他开发者的工作。
 
 **注意事项：**
 
-- 该命令适用于那些你不希望被 Git 跟踪变化的文件，例如在一个多人项目中忽略本地特有的配置文件。
+- 该命令适用于那些你不希望被 Git 跟踪变化的文件，例如在一个多人项目中忽略本地特有的配置文件；
 - 在某些情况下，`skip-worktree` 可能导致意外行为，因为 Git 完全忽略了这些文件的变化。
 
 **assume-unchanged和skip-worktree主要区别：**
 
 1. 行为和目的：
-   - `--assume-unchanged`：假定文件没有变化，主要用于提高性能，不适用于文件内容需要长期忽略的场景，用于临时告诉 Git 假定文件没有变化。
+   - `--assume-unchanged`：假定文件没有变化，主要用于提高性能，不适用于文件内容需要长期忽略的场景，用于临时告诉 Git 假定文件没有变化；
    - `--skip-worktree`：跳过工作目录的文件检查，主要用于忽略特定文件的变化，使其不会出现在 `git status` 中，用于长期忽略特定文件的变化。
 
 2. 适用场景：
-   - `--assume-unchanged`：适用于临时忽略文件变化的场景，例如本地配置文件或临时修改的文件。
+   - `--assume-unchanged`：适用于临时忽略文件变化的场景，例如本地配置文件或临时修改的文件；
    - `--skip-worktree`：适用于需要长期忽略文件变化的场景，例如项目中的特定配置文件。
 
 3. 恢复正常跟踪：
    - `--assume-unchanged`：`git update-index --no-assume-unchanged <file>`
    - `--skip-worktree`：`git update-index --no-skip-worktree <file>`
 
-# 12、克隆远程仓库
+# 13、克隆远程仓库
 
 HTTPS方式在把本地代码push到远程仓库的时候，需要验证用户名和密码。
 
@@ -524,7 +659,7 @@ SSH方式在推送的时候不需要验证用户名和密码，但是需要在Gi
 
 **注意：在2021年8月13日以后，HTTPS的这种方式已经被GitHub停止使用，所以推荐大家使用SSH的方式。**
 
-## 12.1、生成公钥（锁）和密钥
+## 13.1、生成公钥（锁）和密钥
 
 ```bash
 ryualvin /d/develop/git/SSH-Key
@@ -545,13 +680,13 @@ The key's randomart image is:
 +----[SHA256]-----+
 ```
 
-## 12.2、配置公钥（锁）
+## 13.2、配置公钥（锁）
 
 将公钥（锁）配置到GitHub：
 
 ![image-20240504213434384](./assets/image-20240504213434384.png)
 
-## 12.3、指定私钥
+## 13.3、指定私钥
 
 如果是第一次配置，并且在创建密钥的时候没有修改过默认的文件名的话，SSH密钥的配置到这里就完成了。
 
@@ -583,7 +718,7 @@ Host github_Ryuxxx
  	IdentityFile D:\develop\git\SSH-Key\id_rsa_github_Ryuxxx
 ```
 
-## 12.4、克隆
+## 13.4、克隆
 
 ```bash
 ryualvin ~/Desktop/GitTest
@@ -600,12 +735,15 @@ remote: Total 3 (delta 0), reused 0 (delta 0), pack-reused 0
 Receiving objects: 100% (3/3), done.
 ```
 
-# 13、Git Flow
+# 14、Git Flow
 
 GitFlow是一种流程模型，用于在Git上管理软件开发项目。
 
-- 主分支（master）：代表了项目的稳定版本，每个提交到主分支的代码都应该是经过测试和审核的；
-- 开发分支（develop）：用于日常开发。所有功能分支、发布分支和修补分支都应该从develop分支派生；
-- 功能分支（feature）：用于开发单独的功能或特性。每个功能分支应该从develop分支派生，并在开发完成后合并回develop分支；
-- 发布分支（release）：用于准备项目发布。发布分支应该从develop分支派生，并在准备好发布版本后合并回master和develop分支；
-- 修补分支（hotfix）：用于修复主分支上的紧急问题。修补分支应该从master分支派生，并在修复完成后合并回master和develop分支。
+| 分支                | 描述                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| 主分支<br>master    | 代表项目的稳定版本。<br>每个提交到主分支的代码都应该是经过测试和审核的。 |
+| 开发分支<br>develop | 用于日常开发。<br>所有功能分支、发布分支和修补分支都应该从develop分支派生。 |
+| 功能分支<br>feature | 用于开发单独的功能或特性。<br>每个功能分支应该从develop分支派生，并在开发完成后合并回develop分支。 |
+| 发布分支<br>release | 用于准备项目发布。<br>发布分支应该从develop分支派生，并在准备好发布版本后合并回master和develop分支。 |
+| 修补分支<br>hotfix  | 用于修复主分支上的紧急问题。<br>修补分支应该从master分支派生，并在修复完成后合并回master和develop分支。 |
+
