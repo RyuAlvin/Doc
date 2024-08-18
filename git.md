@@ -1,5 +1,39 @@
 # 0、常见问题
 
+## Permission denied (publickey)
+
+```bash
+ryualvin@LAPTOP-1FN99F9S MINGW64 /d/develop/project/rensyu (master)
+$ git push -u origin master
+git@github.com: Permission denied (publickey).
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+```
+
+原因：如果已经配置过公钥密钥，并且在git的配置文件中设置过host，那么在添加新的远程仓库的时候，就通过host名来指定远程仓库。
+
+解决：
+
+```bash
+git remote set-url origin github_RyuAlvin:RyuAlvin/Project.git
+```
+
+```bash
+# 访问github的SSH密钥
+# Host别名
+Host github_RyuAlvin
+# github地址
+ 	HostName github.com
+# git@github.com
+ 	User git
+# 通过.pub文件认证
+ 	PreferredAuthentications publickey
+# 密钥文件地址
+ 	IdentityFile D:\develop\git\SSH-Key\id_rsa_github_RyuAlvin
+```
+
 ## Git Bash终端文件名都只显示数字串
 
 原因：在默认设置下，中文文件名在工作区状态输出，中文名不能正确显示，而是显示为八进制的字符编码。
