@@ -83,6 +83,56 @@ https://blog.csdn.net/albertsh/article/details/106448035
 
 ![image-20240803151142668](./assets/image-20240803151142668.png)
 
+## 合并多个历史提交记录
+
+```bash
+$ git log --oneline
+b2beb0e (HEAD -> master, origin/master) ryualvin初版构建
+85bfc55 ryualvin初版构建
+bb056d7 ryualvin初版构建
+aa542ca Create .gitignore
+```
+
+交互式rebase：
+
+```bash
+git rebase -i HEAD~3
+```
+
+git会打开一个交互式的编辑器，显示从当前提交开始往回数3个提交列表：
+
+```bash
+pick bb056d7 comment1
+pick 85bfc55 comment2
+pick b2beb0e comment3
+```
+
+将最近两个提交的pick改成squash（或简写s）：
+
+```bash
+pick bb056d7 comment1
+squash 85bfc55 comment2
+squash b2beb0e comment3
+```
+
+保存并关闭编辑器。这样后面的两个提交b2beb0e和85bfc55就会被合并到前面的提交bb056d7中。
+
+接下来，git会打开另一个编辑器，供你编辑合并后的提交消息。
+
+编辑完成后，保存并关闭编辑器。git会应用你的更改，将多个提交合并成一个并提交。
+
+```bash
+$ git log --oneline
+27d0e69 (HEAD -> master) ryualvin初版构建
+aa542ca Create .gitignore
+```
+
+如果被合并的提交在之前已经推送到远程仓库，那么，合并提交后需要强制推送来覆盖远程仓库历史：
+
+```bash
+git push origin master --force
+```
+
 # 1、工作流程和文件状态
 
 ![image-20240427181504566](./assets/git-work-flow.png)
