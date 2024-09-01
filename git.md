@@ -191,7 +191,7 @@ Untracked files:
 | 更改文件名                                                   | git mv temp.txt xyz.txt<br>相当于：<br>mv temp.txt xyz.txt<br>git rm temp.txt<br>git add xyz.txt |
 | 恢复一个文件到之前的版本                                     | git checkout temp.txt 71dks8                                 |
 | 撤销工作区的修改<br>只能撤销工作区的修改，且不可恢复，不会撤销暂存区修改 | git checkout .<br>git checkout temp.txt                      |
-| 修改（取代）最近一次提交信息：<br>提交后发现漏某些文件或者提交信息写错<br>注意：切勿修改共有提交 | git commit -m "initial commit"<br>git add forget_file.txt<br>git commit -amend<br>弹出vim编辑框，输入提交信息。<br>或者：git commit -amend -m "modify commit" |
+| 修改（取代）最近一次提交信息：<br>提交后发现漏某些文件或者提交信息写错<br>注意：切勿修改共有提交 | git commit -m "initial commit"<br>git add forget_file.txt<br>git commit --amend<br>弹出vim编辑框，输入提交信息。<br>或者：git commit --amend -m "modify commit" |
 | 把当前工作现场储藏起来，等以后恢复现场后继续工作<br>-u参数表示把所有未跟踪的文件也一起存储<br>-a参数表示把所有未跟踪的文件和忽略的文件也一并存储<br>save参数表示存储的信息，可以不写 | git stash save "message"                                     |
 | 查看stash列表                                                | git stash list                                               |
 | 弹栈，恢复后就从stash list中删除                             | git stash pop                                                |
