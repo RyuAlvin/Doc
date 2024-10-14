@@ -133,6 +133,16 @@ aa542ca Create .gitignore
 git push origin master --force
 ```
 
+## 关于checkout撤销修改
+
+checkout只能撤销工作空间中的修改，并且该文件存在于本地库版本中。若checkout对象文件不存在本地库版本中，则会报一下错误（路径指定的文件并不匹配git中的任何文件）：
+
+```bash
+ryualvin@LAPTOP-1FN99F9S MINGW64 ~/Desktop/gitTest - 副本 (master)
+$ git checkout -- 2.txt
+error: pathspec '2.txt' did not match any file(s) known to git
+```
+
 # 1、工作流程和文件状态
 
 ![image-20240427181504566](./assets/git-work-flow.png)
@@ -269,7 +279,19 @@ c6db37e HEAD@{2}: commit: second commit
 | 撤销前一次提交                                               | git revert HEAD^                                             |
 | 撤销某一次提交                                               | git revert 6fb9bca                                           |
 
-**回退和撤销的区别：**revert是用一次新的提交来回滚之前的提交，reset是直接删除指定提交。
+回退和撤销的区别：
+
+1. revert是用一次新的提交来回滚之前的提交，reset是直接删除指定提交；
+
+2. 关于是否回退/撤销指定版本的操作：
+
+   - git revert：
+
+     ![image-20241014153318535](./assets/image-20241014153318535.png)
+
+   - git reset：
+
+     ![image-20241014153710996](./assets/image-20241014153710996.png)
 
 # 8、远程仓库
 
