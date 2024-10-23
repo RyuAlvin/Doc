@@ -332,8 +332,8 @@ c6db37e HEAD@{2}: commit: second commit
 | 将本地所有分支都推送到远程主机                               | git push --all origin                                        |
 | 强制推送（最好不用）                                         | git push --force origin                                      |
 | 创建一个新的本地分支dev并设置远程追踪                        | git checkout --track origin/dev                              |
-| 创建一个与远程分支不同名的本地分支                           | git checkout -b ryu-dev origin/dev                           |
-| 为已有的本地分支设置远程追踪分支                             | git checkout master<br>git branch -u origin/master<br>或：<br>git branch --set-upstream-to origin/master |
+| 创建一个与远程分支不同名的本地分支<br>创建切换至本地分支ryu-dev，设置跟踪远程分支origin/dev<br>注意：<br>如果执行pull以后，origin/dev会更新，<br>ryu-dev和origin/dev保持同步，<br>但本地dev并不会被更新 | git checkout -b ryu-dev origin/dev                           |
+| 为已有的本地分支设置远程追踪分支                             | git checkout master<br>git branch -u origin/master<br>git branch -u origin/master local-dev<br>前提：本地存在local-dev分支<br>或：<br>git branch --set-upstream-to origin/master |
 | 将远程仓库拉取到本地仓库临时分支并手动合并<br>如果本地存在临时分支则覆盖，不存在则创建 | git fetch origin master:tmp<br>比较本地代码和刚下载的代码的区别：<br>git diff tmp<br>合并tmp分支到本地的master分支：<br>git merge tmp<br>如果不想保留tmp，可删除：<br>git branch -d tmp |
 | 基于本地分支创建远程分支                                     | git push origin bk_master:bk_master                          |
 | 本地新分支和远程新分支关联                                   | git push --set-upstream origin bk_master                     |
