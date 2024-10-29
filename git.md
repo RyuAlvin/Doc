@@ -99,7 +99,7 @@ aa542ca Create .gitignore
 git rebase -i HEAD~3
 ```
 
-git会打开一个交互式的编辑器，显示从当前提交开始往回数3个提交列表：
+git会打开一个交互式的编辑器，b2beb0e的HEAD~3指向的是aa542ca，显示从b2beb0e到aa542ca之间的所有提交，但是不包括aa542ca：
 
 ```bash
 pick bb056d7 comment1
@@ -337,6 +337,7 @@ c6db37e HEAD@{2}: commit: second commit
 | 将远程仓库拉取到本地仓库临时分支并手动合并<br>如果本地存在临时分支则覆盖，不存在则创建 | git fetch origin master:tmp<br>比较本地代码和刚下载的代码的区别：<br>git diff tmp<br>合并tmp分支到本地的master分支：<br>git merge tmp<br>如果不想保留tmp，可删除：<br>git branch -d tmp |
 | 基于本地分支创建远程分支                                     | git push origin bk_master:bk_master                          |
 | 本地新分支和远程新分支关联                                   | git push --set-upstream origin bk_master                     |
+| 强制修改分支位置                                             | git branch -f main HEAD~3<br>将main分支强制指向HEAD的第3级parent提交 |
 
 # 10、合并操作
 
